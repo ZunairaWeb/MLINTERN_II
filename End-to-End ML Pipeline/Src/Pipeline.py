@@ -1,37 +1,56 @@
+# Customer Churn Prediction using Logistic Regression
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score , confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix
 
+# -------------------------------
+# 1. Load Dataset
+# -------------------------------
+df = pd.read_csv(
+    r'D:\Pprojects\MLintern_II\End-to-End ML Pipeline\DataSet\WA_Fn-UseC_-Telco-Customer-Churn.csv'
+)
 
-df=pd.read_csv('D:\Pprojects\MLintern_II\End-to-End ML Pipeline\DataSet\WA_Fn-UseC_-Telco-Customer-Churn.csv')
-# print(df.head())
-# print(df.describe())
-# print(df.info())
-# Data Cleanning 
-# drop the customer id 
+# -------------------------------
+# 2. Data Cleaning
+# -------------------------------
+# Drop customerID (not useful for prediction)
 df = df.drop('customerID', axis=1)
-# print(df)
-# Convert the  total charges to the column 
+
+# Convert TotalCharges to numeric and drop rows with missing values
 df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
 df = df.dropna(subset=['TotalCharges'])
-# print(df)
-# Drop the column Churn 
-X = df.drop('Churn', axis=1)   # features
-y = df['Churn'].map({'Yes':1, 'No':0})   # target converted to 0/1
-# print(df)
 
-# Convert the data into categorial form 
+# -------------------------------
+# 3. Feature and Target Separation
+# -------------------------------
+X = df.drop('Churn', axis=1)                     # Features
+y = df['Churn'].map({'Yes': 1, 'No': 0})         # Target (binary labels)
+
+# -------------------------------
+# 4. Encode Categorical Features
+# -------------------------------
 X = pd.get_dummies(X, drop_first=True)
-# print(X)
-# Train the method 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+# -------------------------------
+# 5. Train-Test Split
+# -------------------------------
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# -------------------------------
+# 6. Model Training
+# -------------------------------
 model = LogisticRegression(max_iter=2000)
 model.fit(X_train, y_train)
-#  prediction 
-y_predict = model.predict(X_test)
-print(y_predict)
-model_accuracy = accuracy_score(y_test, y_predict)
-print(model_accuracy)
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_predict))
+
+# -------------------------------
+# 7. Predictions & Evaluation
+# -------------------------------
+y_pred = model.predict(X_test)
+
+print("Predictions:\n", y_pred)
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
